@@ -272,6 +272,7 @@ function RegistroMultiPaso({ goBack, rol }) {
       </div>
     </>
   );
+}
 
 function RegistroEmpleado({ goBack }) {
   const [rol, setRol] = useState("");
@@ -298,4 +299,3 @@ function RegistroEmpleado({ goBack }) {
 }
 
 export default RegistroEmpleado;
-}
