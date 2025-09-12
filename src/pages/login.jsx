@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Login({ setView }) {
+export default function Login({ setView, goBack }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showRegister, setShowRegister] = useState(false);
   const [registerForm, setRegisterForm] = useState({ email: "", password: "" });
@@ -76,6 +76,9 @@ export default function Login({ setView }) {
       <>
         <style>{`.login-container { background: white; padding: 35px 40px; border-radius: 10px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); width: 380px; text-align: center; border-top: 6px solid #e76bb2; } .login-container h2 { margin-bottom: 20px; color: #e76bb2; font-size: 26px; font-weight: bold; } .input-group { margin-bottom: 18px; text-align: left; } .input-group label { display: block; font-size: 14px; margin-bottom: 6px; color: #444; } .input-group input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; transition: border 0.3s; } .input-group input:focus { border-color: #a18cd1; outline: none; } .btn-login { width: 100%; padding: 12px; background: linear-gradient(90deg, #fbc2eb, #a18cd1); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; transition: opacity 0.3s; } .btn-login:hover { opacity: 0.9; } .extra { margin-top: 20px; font-size: 14px; color: #555; } .extra a { color: #e76bb2; text-decoration: none; font-weight: bold; } .extra a:hover { text-decoration: underline; }`}</style>
         <div className="login-container">
+          {goBack && (
+            <button onClick={goBack} style={{ position: 'absolute', left: 20, top: 20, background: 'none', border: 'none', color: '#a18cd1', fontSize: 22, cursor: 'pointer' }} title="Atrás">←</button>
+          )}
           {!showRegister ? (
             <>
               <h2>Iniciar Sesión</h2>
@@ -182,6 +185,12 @@ export default function Login({ setView }) {
             </>
           )}
         </div>
+        <footer className="login-footer">
+          <a href="#" onClick={e => { e.preventDefault(); setView && setView('terminos'); }} style={{ marginRight: 16, color: '#a18cd1', textDecoration: 'underline', fontSize: 13 }}>Términos y Condiciones</a>
+          <a href="#" onClick={e => { e.preventDefault(); setView && setView('privacidad'); }} style={{ marginRight: 16, color: '#a18cd1', textDecoration: 'underline', fontSize: 13 }}>Política de Privacidad</a>
+          <a href="#" onClick={e => { e.preventDefault(); setView && setView('datos'); }} style={{ color: '#a18cd1', textDecoration: 'underline', fontSize: 13 }}>Cuidado de Datos Personales</a>
+        </footer>
+        <style>{`.login-footer { margin-top: 30px; text-align: center; } .login-footer a:hover { text-decoration: none; color: #e76bb2; }`}</style>
       </>
     );
 }

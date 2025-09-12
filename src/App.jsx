@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import Login from "./pages/login.jsx";
+import Terminos from "./pages/terminos.jsx";
+import Privacidad from "./pages/privacidad.jsx";
+import DatosPersonales from "./pages/datos.jsx";
+import Servicios from "./pages/servicios.jsx";
+import ContactoEmpresaInfo from "./pages/contacto.jsx";
+import RegistroEmpleado from "./pages/registro.jsx";
 import Cliente from "./pages/cliente.jsx";
 import Perfiles from "./pages/perfiles.jsx";
 import Nosotros from "./pages/nosotros.jsx";
@@ -9,6 +15,7 @@ import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
 
       function App() {
         const [view, setView] = useState("inicio");
+        const [history, setHistory] = useState([]);
         const [rol, setRol] = useState("");
         // Carrusel: hooks deben estar aquí, no dentro de renderView
         const carruselImgs = [
@@ -47,30 +54,56 @@ import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
         const opcionesStyle = { display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px' };
         const tagStyle = { background: 'linear-gradient(90deg, #fbc2eb, #4c3575)', color: 'white', padding: '8px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: '500', boxShadow: '0 3px 6px rgba(0,0,0,0.1)' };
 
+        // Navegación con historial
+        const goToView = (v) => {
+          setHistory((h) => [...h, view]);
+          setView(v);
+        };
+        const goBack = () => {
+          setHistory((h) => {
+            if (h.length === 0) return h;
+            const prev = h[h.length - 1];
+            setView(prev);
+            return h.slice(0, -1);
+          });
+        };
+
         const renderView = () => {
           console.log("Vista actual:", view);
           switch (view) {
             case "login":
               return <Login setView={(v) => {
-                setView(v);
+                goToView(v);
                 // Determinar rol según vista
                 if (v === "admin") setRol("Administrador");
                 else if (v === "empleado") setRol("Empleada");
                 else if (v === "cliente") setRol("Cliente");
                 else setRol("");
-              }} />;
+              }} goBack={goBack} />;
             case "recuperar":
-              return <RecuperarContrasena setView={setView} />;
+              return <RecuperarContrasena setView={goToView} goBack={goBack} />;
             case "cliente":
-              return <Cliente />;
+              return <Cliente goBack={goBack} />;
             case "perfiles":
-              return <Perfiles />;
+              return <Perfiles goBack={goBack} />;
             case "nosotros":
-              return <Nosotros />;
+              return <Nosotros goBack={goBack} />;
             case "admin":
-              return <Admin />;
+              return <Admin goBack={goBack} />;
             case "empleado":
-              return <Empleado />;
+              return <Empleado goBack={goBack} />;
+            case "servicios":
+              return <Servicios goBack={goBack} />;
+            case "contacto":
+              return <ContactoEmpresaInfo goBack={goBack} />;
+            case "registro":
+              return <RegistroEmpleado goBack={goBack} />;
+            case "terminos":
+              return <Terminos goBack={goBack} />;
+            case "privacidad":
+              return <Privacidad goBack={goBack} />;
+            case "datos":
+              return <DatosPersonales goBack={goBack} />;
             default:
               return (
                 <>
@@ -113,16 +146,16 @@ import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
         return (
           <div style={{ fontFamily: '"Segoe UI", Arial, sans-serif', backgroundColor: '#f6f5fc', color: '#333', lineHeight: '1.5' }}>
             <header style={headerStyle}>
-              <a href="#" onClick={e => {e.preventDefault(); setView('inicio'); setRol && setRol('');}} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <a href="#" onClick={e => {e.preventDefault(); goToView('inicio'); setRol && setRol('');}} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
                 <img src="/logo.png.png" alt="Coll Service Logo" style={{ height: '80px', marginRight: 10, cursor: 'pointer' }} />
                 <span style={{ fontSize: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginLeft: 0, alignSelf: 'flex-start' }}>COLL SERVICE</span>
               </a>
               <ul style={menuStyle}>
-                <li><a style={menuLinkStyle} onClick={() => setView("inicio")}>Inicio</a></li>
-                <li><a style={menuLinkStyle} onClick={() => setView("servicios")}>Servicios</a></li>
-                <li><a style={menuLinkStyle} onClick={() => setView("nosotros")}>Nosotros</a></li>
-                <li><a style={menuLinkStyle} onClick={() => setView("contacto")}>Contacto</a></li>
-                <li><a style={menuLinkStyle} onClick={() => setView("perfiles")}>Perfiles</a></li>
+                <li><a style={menuLinkStyle} onClick={() => goToView("inicio")}>Inicio</a></li>
+                <li><a style={menuLinkStyle} onClick={() => goToView("servicios")}>Servicios</a></li>
+                <li><a style={menuLinkStyle} onClick={() => goToView("nosotros")}>Nosotros</a></li>
+                <li><a style={menuLinkStyle} onClick={() => goToView("contacto")}>Contacto</a></li>
+                <li><a style={menuLinkStyle} onClick={() => goToView("perfiles")}>Perfiles</a></li>
               </ul>
               <div style={accionesStyle}>
                 {rol && (
@@ -132,7 +165,7 @@ import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
                   </>
                 )}
                 {!rol && <button style={btnStyle} onClick={() => { setView("login"); setRol(""); }}>Iniciar sesión</button>}
-                <button style={btnStyle}>Registrarse</button>
+                <button style={btnStyle} onClick={() => { setView('registro'); setRol(''); }}>Registrarse</button>
               </div>
             </header>
 
