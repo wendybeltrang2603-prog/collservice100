@@ -5,15 +5,77 @@ import Login from "./pages/login.jsx";
 import Terminos from "./pages/terminos.jsx";
 import Privacidad from "./pages/privacidad.jsx";
 import DatosPersonales from "./pages/datos.jsx";
-import Servicios from "./pages/servicios.jsx";
-import ContactoEmpresaInfo from "./pages/contacto.jsx";
 import RegistroEmpleado from "./pages/registro.jsx";
-import RegistroCliente from "./pages/cliente.jsx"; // ✅ CORREGIDO: antes estaba como recliente.jsx (incorrecto)
-import Perfiles from "./pages/perfiles.jsx";
-import Nosotros from "./pages/nosotros.jsx";
+import RegistroCliente from "./pages/cliente.jsx"; 
+import Cliente from "./pages/cliente.jsx"; 
 import Admin from "./pages/admin.jsx";
 import Empleado from "./pages/empleado.jsx";
+import Nosotros from "./pages/nosotros.jsx";
+import ContactoEmpresaInfo from "./pages/contacto.jsx";
 import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
+// Si quieres usarlo: import RegistroCliente from "./pages/registroCliente.jsx";
+
+// 👉 Nuevo componente Servicios
+function Servicios({ goBack }) {
+  return (
+    <section style={{ textAlign: "center", padding: "20px" }}>
+      <h2 style={{ fontSize: "26px", fontWeight: "bold", marginBottom: "16px" }}>
+        Nuestros Servicios
+      </h2>
+      <p style={{ marginBottom: "20px", fontSize: "16px" }}>
+        Ofrecemos limpieza de hogares, oficinas, organización de espacios y
+        mantenimiento general.
+      </p>
+      <ul
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "15px",
+          listStyle: "none",
+          padding: 0,
+        }}
+      >
+        <li style={servicioStyle}>🧹 Limpieza general</li>
+        <li style={servicioStyle}>🧺 Lavandería</li>
+        <li style={servicioStyle}>🍲 Preparación de alimentos</li>
+        <li style={servicioStyle}>👵 Cuidado de adultos mayores</li>
+        <li style={servicioStyle}>👶 Niñera</li>
+        <li style={servicioStyle}>🐶 Cuidado canino</li>
+        <li style={servicioStyle}>🌳 Mantenimiento de jardines y áreas verdes</li>
+        <li style={servicioStyle}>🗄️ Organización de armarios o bodegas</li>
+        <li style={servicioStyle}>🛒 Compras y mandados</li>
+        <li style={servicioStyle}>♿ Cuidado a personas con discapacidad</li>
+        <li style={servicioStyle}>🎉 Limpieza después de eventos o fiestas</li>
+        <li style={servicioStyle}>🚗 Limpieza y mantenimiento de vehículos</li>
+      </ul>
+      {goBack && (
+        <button
+          onClick={goBack}
+          style={{
+            marginTop: "20px",
+            background: "#ecafd2ff",
+            color: "white",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          ⬅ Volver
+        </button>
+      )}
+    </section>
+  );
+}
+
+const servicioStyle = {
+  background: "#ffe4ec",
+  padding: "14px",
+  borderRadius: "12px",
+  boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
+  fontWeight: "500",
+  textAlign: "center",
+};
 
 function App() {
   const [view, setView] = useState("inicio");
@@ -65,6 +127,7 @@ function App() {
     flexWrap: "wrap",
     ...(isMobile ? { flexDirection: "column", alignItems: "flex-start", padding: "14px 20px" } : {}),
   };
+  const logoStyle = { fontSize: "22px", fontWeight: "bold", marginBottom: isMobile ? "10px" : "0" };
 
   const menuStyle = {
     listStyle: "none",
@@ -79,6 +142,7 @@ function App() {
     color: "white",
     fontWeight: "500",
     cursor: "pointer",
+    transition: "color 0.3s",
   };
 
   const accionesStyle = {
@@ -124,28 +188,29 @@ function App() {
     textAlign: "center",
     marginTop: "60px",
   };
-  const terminosLinkStyle = {
+  const linkFooterStyle = {
     color: "white",
     textDecoration: "underline",
     cursor: "pointer",
-    fontSize: "14px",
+    margin: "0 8px",
   };
 
   const renderView = () => {
     switch (view) {
       case "login":
-        return (
-          <Login
-            setView={(v) => {
-              goToView(v);
-              if (v === "admin") setRol("Administrador");
-              else if (v === "empleado") setRol("Empleada");
-              else if (v === "cliente") setRol("Cliente");
-              else setRol("");
-            }}
-            goBack={goBack}
-          />
-        );
+  return (
+    <Login
+      setView={(v) => {
+        goToView(v);   // ✅ aquí es donde cambia la vista
+        if (v === "admin") setRol("Administrador");
+        else if (v === "empleado") setRol("Empleada");
+        else if (v === "cliente") setRol("Cliente");
+        else setRol("");
+      }}
+      goBack={goBack}
+    />
+  );
+
       case "recuperar":
         return <RecuperarContrasena setView={goToView} goBack={goBack} />;
       case "registro":
@@ -153,15 +218,15 @@ function App() {
       case "recliente":
         return <RegistroCliente goBack={goBack} />;
       case "cliente":
-        return <RegistroCliente goBack={goBack} />;
+        return <Cliente goBack={goBack} />;
       case "empleado":
         return <Empleado goBack={goBack} />;
       case "admin":
         return <Admin goBack={goBack} />;
       case "servicios":
-        return <Servicios goBack={goBack} />;
-      case "perfiles":
-        return <Perfiles goBack={goBack} />;
+        return <Servicios goBack={goBack} />; {/* ✅ Ahora integrado */}
+      case "nosotros":
+        return <Nosotros goBack={goBack} />;
       case "contacto":
         return <ContactoEmpresaInfo goBack={goBack} />;
       case "terminos":
@@ -170,24 +235,46 @@ function App() {
         return <Privacidad goBack={goBack} />;
       case "datos":
         return <DatosPersonales goBack={goBack} />;
-      case "nosotros":
-        return <Nosotros goBack={goBack} />;
       default:
         return (
           <>
+            {/* Pantalla Inicio */}
             <section style={{ textAlign: "center", margin: "50px auto 30px", padding: isMobile ? "0 15px" : "0" }}>
-              <h1 style={{ fontSize: "30px", color: "#e76bb2", marginBottom: "15px" }}>Bienvenido a Coll Service</h1>
-              <p style={{ fontSize: "16px", background: "#f1f2f7", display: "inline-block", padding: "10px 18px", borderRadius: "10px", color: "#444", maxWidth: isMobile ? "90%" : "600px" }}>
+              <h1 style={{ fontSize: "30px", color: "#e76bb2", marginBottom: "15px" }}>
+                Bienvenido a Coll Service
+              </h1>
+              <p
+                style={{
+                  fontSize: "16px",
+                  background: "#f1f2f7",
+                  display: "inline-block",
+                  padding: "10px 18px",
+                  borderRadius: "10px",
+                  color: "#444",
+                  maxWidth: isMobile ? "90%" : "600px",
+                }}
+              >
                 Tu tranquilidad y limpieza en manos expertas. ¡Confía en nosotros para tu hogar u oficina!
               </p>
             </section>
 
+            {/* Carrusel */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 40 }}>
-              <div style={{ position: "relative", width: 320, height: 200, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 16px rgba(76,53,117,0.13)", background: "#fff" }}>
+              <div
+                style={{
+                  position: "relative",
+                  width: 320,
+                  height: 200,
+                  borderRadius: 18,
+                  overflow: "hidden",
+                  boxShadow: "0 4px 16px rgba(76,53,117,0.13)",
+                  background: "#fff",
+                }}
+              >
                 <img
                   src={carruselImgs[carruselIdx].src}
                   alt={carruselImgs[carruselIdx].alt}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.7s" }}
                 />
                 <div
                   style={{
@@ -200,7 +287,7 @@ function App() {
                     padding: "10px 0",
                     textAlign: "center",
                     fontWeight: 500,
-                    fontSize: 17
+                    fontSize: 17,
                   }}
                 >
                   {carruselImgs[carruselIdx].texto}
@@ -220,17 +307,6 @@ function App() {
                 ))}
               </div>
             </div>
-
-            <section style={{ maxWidth: "850px", margin: "0 auto 50px", background: "white", padding: "25px 30px", borderRadius: "16px", boxShadow: "0 6px 12px rgba(0,0,0,0.1)", textAlign: "center" }}>
-              <p style={{ fontSize: "15px", color: "#555", marginBottom: "20px" }}>
-                En Coll Service ofrecemos servicios profesionales de aseo doméstico para hogares y oficinas. Nuestro equipo está capacitado para brindar limpieza, organización y confianza en cada visita.
-              </p>
-              <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "15px", fontWeight: "bold" }}>¿Por qué elegirnos?</h3>
-              <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
-                <span style={{ background: "linear-gradient(90deg, #fbc2eb, #4c3575)", color: "white", padding: "8px 14px", borderRadius: "20px", fontSize: "14px", fontWeight: "500", boxShadow: "0 3px 6px rgba(0,0,0,0.1)" }}>Personal confiable y verificado</span>
-                <span style={{ background: "linear-gradient(90deg, #fbc2eb, #4c3575)", color: "white", padding: "8px 14px", borderRadius: "20px", fontSize: "14px", fontWeight: "500", boxShadow: "0 3px 6px rgba(0,0,0,0.1)" }}>Atención personalizada</span>
-              </div>
-            </section>
           </>
         );
     }
@@ -249,14 +325,11 @@ function App() {
           style={{ textDecoration: "none", display: "flex", alignItems: "center", marginBottom: isMobile ? "12px" : "0" }}
         >
           <img src="/logo.png.png" alt="Coll Service Logo" style={{ height: "80px", marginRight: 10, cursor: "pointer" }} />
-          <span style={{ fontSize: "1.2rem", fontWeight: "bold", letterSpacing: "1.5px", color: "#fff" }}>COLL SERVICE</span>
+          <span style={{ ...logoStyle, color: "#fff", letterSpacing: "1.5px" }}>COLL SERVICE</span>
         </a>
         <ul style={menuStyle}>
           <li><a style={menuLinkStyle} onClick={() => goToView("inicio")}>Inicio</a></li>
-          <li><a style={menuLinkStyle} onClick={() => goToView("servicios")}>Servicios</a></li>
-          <li><a style={menuLinkStyle} onClick={() => goToView("nosotros")}>Nosotros</a></li>
-          <li><a style={menuLinkStyle} onClick={() => goToView("contacto")}>Contacto</a></li>
-          <li><a style={menuLinkStyle} onClick={() => goToView("perfiles")}>Perfiles</a></li>
+          
         </ul>
         <div style={accionesStyle}>
           {rol ? (
@@ -277,33 +350,25 @@ function App() {
           ) : (
             <button style={btnStyle} onClick={() => { goToView("login"); setRol(""); }}>Iniciar sesión</button>
           )}
-          <button style={btnStyle} onClick={() => { goToView("registro"); setRol(""); }}>Registro Empleado</button>
-          <button style={btnStyle} onClick={() => { goToView("recliente"); setRol(""); }}>Registro Cliente</button>
-          <input type="text" placeholder="Buscar Perfiles..." style={inputStyle} />
-          <button style={buscarBtnStyle} onClick={() => goToView("perfiles")}>🔍</button>
+          <button style={btnStyle} onClick={() => { goToView("registro"); setRol(""); }}>Registro </button>
+          <button style={btnStyle} onClick={() => { goToView("recliente"); setRol(""); }}>Empleados Disponibles</button>
+         
         </div>
       </header>
 
       <main>{renderView()}</main>
 
       <footer style={footerStyle}>
-        <div style={{ display: "flex", justifyContent: "space-between", maxWidth: "900px", margin: "0 auto", flexWrap: "wrap", gap: "20px" }}>
-          <div style={{ flex: "1 1 200px", marginBottom: "10px" }}>
-            <a
-              href="#"
-              style={terminosLinkStyle}
-              onClick={(e) => { e.preventDefault(); goToView("terminos"); }}
-            >Términos y Condiciones</a>
-          </div>
-          <div style={{ flex: "1 1 200px", marginBottom: "10px" }}>
-            <a
-              href="#"
-              style={terminosLinkStyle}
-              onClick={(e) => { e.preventDefault(); goToView("contacto"); }}
-            >Contáctanos</a>
-          </div>
+        <div style={{ marginBottom: "20px" }}>
+          
+          <a style={linkFooterStyle} onClick={() => goToView("terminos")}>Términos y Condiciones</a> |
+          <a style={linkFooterStyle} onClick={() => goToView("privacidad")}>Política de Privacidad</a> |
+          <a style={linkFooterStyle} onClick={() => goToView("contacto")}>Contacto</a> |
+          <a style={linkFooterStyle} onClick={() => goToView("nosotros")}>Nosotros</a> |
+          <a style={linkFooterStyle} onClick={() => goToView("servicios")}>Servicios</a>
+
         </div>
-        <div style={{ marginTop: "20px", fontWeight: "500", fontSize: "16px" }}>
+        <div style={{ fontWeight: "500", fontSize: "16px" }}>
           © {new Date().getFullYear()} Coll Service. Todos los derechos reservados.
         </div>
       </footer>

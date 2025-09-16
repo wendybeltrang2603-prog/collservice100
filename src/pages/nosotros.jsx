@@ -1,8 +1,6 @@
-export default function Nosotros() {
+export default function Nosotros({ goBack }) {
   return (
-    <section
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-20 bg-white"
-    >
+    <section className="min-h-screen flex flex-col items-center justify-center px-6 py-20 bg-white">
       <h2 className="text-4xl font-extrabold mb-6 text-gray-900 text-center">
         Nosotros
       </h2>
@@ -19,7 +17,7 @@ export default function Nosotros() {
         <div
           className="rounded-lg shadow-lg p-8 flex-1 flex flex-col items-center justify-center text-white"
           style={{
-            background: 'linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)',
+            background: "linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)",
           }}
         >
           <h3 className="text-xl font-semibold mb-4">Personal Confiable</h3>
@@ -32,7 +30,7 @@ export default function Nosotros() {
         <div
           className="rounded-lg shadow-lg p-8 flex-1 flex flex-col items-center justify-center text-white"
           style={{
-            background: 'linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)',
+            background: "linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)",
           }}
         >
           <h3 className="text-xl font-semibold mb-4">Atención Personalizada</h3>
@@ -45,7 +43,7 @@ export default function Nosotros() {
         <div
           className="rounded-lg shadow-lg p-8 flex-1 flex flex-col items-center justify-center text-white"
           style={{
-            background: 'linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)',
+            background: "linear-gradient(90deg, #f2b6e2 0%, #7b1fad 100%)",
           }}
         >
           <h3 className="text-xl font-semibold mb-4">Confianza y Seguridad</h3>
@@ -54,6 +52,22 @@ export default function Nosotros() {
           </p>
         </div>
       </div>
+
+      {/* ✅ Botón Volver */}
+      <button
+        onClick={goBack}
+        style={{
+          marginTop: "40px",
+          background: "#ecafd2ff",
+          color: "white",
+          padding: "10px 18px",
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        ⬅ Volver
+      </button>
     </section>
   );
 }

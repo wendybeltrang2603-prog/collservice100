@@ -160,12 +160,8 @@ export default function RecuperarContrasena({ setView }) {
           <a href="#" onClick={e => {e.preventDefault(); setView && setView('login');}} style={{display:'flex',alignItems:'center',gap:6}}>
             <span style={{fontSize:18}}>←</span> Volver al inicio de sesión
           </a>
-          <a href="#" onClick={e => {e.preventDefault(); setView && setView('recuperar');}} style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:18}}>🔄</span> ¿Olvidaste tu contraseña?
-          </a>
-          <a href="#" onClick={e => {e.preventDefault(); setView && setView('login'); setTimeout(()=>setView && setView('registro'), 0);}} style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:18}}>→</span> ¿No tienes cuenta? Regístrate aquí
-          </a>
+          
+        
         </div>
       </div>
     </>

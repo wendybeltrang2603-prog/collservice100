@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Login() {
+export default function Login({ setView, goBack }) {
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
@@ -84,6 +84,7 @@ export default function Login() {
           font-weight: bold;
           cursor: pointer;
           transition: opacity 0.3s;
+          margin-top: 10px;
         }
 
         .btn-login:hover {
@@ -91,7 +92,7 @@ export default function Login() {
         }
 
         .extra {
-          margin-top: 20px;
+          margin-top: 15px;
           font-size: 14px;
           color: #555;
         }
@@ -142,8 +143,31 @@ export default function Login() {
             </button>
           </form>
 
+          {/* Sección enlaces */}
           <p className="extra">
-            ¿No tienes cuenta? <a href="#">Regístrate aquí</a>
+            ¿Olvidaste tu contraseña?{" "}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setView("recuperar");
+              }}
+            >
+              Recupérala aquí
+            </a>
+          </p>
+
+          <p className="extra">
+            ¿No tienes cuenta?{" "}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setView("registro");
+              }}
+            >
+              Regístrate aquí
+            </a>
           </p>
         </div>
       </div>
