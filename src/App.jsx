@@ -6,14 +6,13 @@ import Terminos from "./pages/terminos.jsx";
 import Privacidad from "./pages/privacidad.jsx";
 import DatosPersonales from "./pages/datos.jsx";
 import RegistroEmpleado from "./pages/registro.jsx";
-import RegistroCliente from "./pages/cliente.jsx"; 
-import Cliente from "./pages/cliente.jsx"; 
+import RegistroCliente from "./pages/cliente.jsx";
+import Cliente from "./pages/cliente.jsx";
 import Admin from "./pages/admin.jsx";
 import Empleado from "./pages/empleado.jsx";
 import Nosotros from "./pages/nosotros.jsx";
 import ContactoEmpresaInfo from "./pages/contacto.jsx";
 import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
-// Si quieres usarlo: import RegistroCliente from "./pages/registroCliente.jsx";
 
 // 👉 Nuevo componente Servicios
 function Servicios({ goBack }) {
@@ -198,19 +197,18 @@ function App() {
   const renderView = () => {
     switch (view) {
       case "login":
-  return (
-    <Login
-      setView={(v) => {
-        goToView(v);   // ✅ aquí es donde cambia la vista
-        if (v === "admin") setRol("Administrador");
-        else if (v === "empleado") setRol("Empleada");
-        else if (v === "cliente") setRol("Cliente");
-        else setRol("");
-      }}
-      goBack={goBack}
-    />
-  );
-
+        return (
+          <Login
+            setView={(v) => {
+              goToView(v);   // ✅ aquí es donde cambia la vista
+              if (v === "admin") setRol("Administrador");
+              else if (v === "empleado") setRol("Empleada");
+              else if (v === "cliente") setRol("Cliente");
+              else setRol("");
+            }}
+            goBack={goBack}
+          />
+        );
       case "recuperar":
         return <RecuperarContrasena setView={goToView} goBack={goBack} />;
       case "registro":
@@ -351,7 +349,7 @@ function App() {
             <button style={btnStyle} onClick={() => { goToView("login"); setRol(""); }}>Iniciar sesión</button>
           )}
           <button style={btnStyle} onClick={() => { goToView("registro"); setRol(""); }}>Registro </button>
-          <button style={btnStyle} onClick={() => { goToView("recliente"); setRol(""); }}>Empleados Disponibles</button>
+         
          
         </div>
       </header>

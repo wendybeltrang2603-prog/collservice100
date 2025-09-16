@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Login({ setView, goBack }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -10,6 +10,8 @@ export default function Login({ setView, goBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Datos enviados:", form);
+    // Simulamos un inicio de sesión exitoso y redirigimos a la vista cliente
+    setView("cliente"); // Aquí es donde se redirige a la vista "cliente"
   };
 
   return (
