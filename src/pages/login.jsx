@@ -9,9 +9,23 @@ export default function Login({ setView, goBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Datos enviados:", form);
-    // Simulamos un inicio de sesión exitoso y redirigimos a la vista cliente
-    setView("cliente"); // Aquí es donde se redirige a la vista "cliente"
+
+    // Validaciones de inicio de sesión
+    if (form.email === "evelynarango1220@gmail.com") {
+      setView("cliente"); // Redirige a cliente.jsx
+    } else if (
+      form.email === "empleada@collservice.com" &&
+      form.password === "empleada123"
+    ) {
+      setView("empleado"); // Redirige a empleado.jsx
+    } else if (
+      form.email === "admin@collservice.com" &&
+      form.password === "admin123"
+    ) {
+      setView("admin"); // Redirige a admin.jsx
+    } else {
+      alert("❌ Correo o contraseña incorrectos");
+    }
   };
 
   return (
@@ -145,7 +159,7 @@ export default function Login({ setView, goBack }) {
             </button>
           </form>
 
-          {/* Sección enlaces */}
+          {/* Enlaces extra */}
           <p className="extra">
             ¿Olvidaste tu contraseña?{" "}
             <a
