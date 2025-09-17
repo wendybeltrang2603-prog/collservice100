@@ -11,7 +11,8 @@ export default function Login({ setView, goBack }) {
     e.preventDefault();
 
     // Validaciones de inicio de sesión
-    if (form.email === "evelynarango1220@gmail.com") {
+    if (form.email === "evelynarango1220@gmail.com" &&
+      form.password === "1234") {
       setView("cliente"); // Redirige a cliente.jsx
     } else if (
       form.email === "empleada@collservice.com" &&
