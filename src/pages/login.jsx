@@ -1,31 +1,36 @@
 import React, { useState } from "react";
+import axios from "axios";
 
-export default function Login({ setView, goBack }) {
+export default function Login({ setView }) {
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:5000/api/login", {
+        correo: form.email,
+        contrasena: form.password,
+      });
 
-    // Validaciones de inicio de sesión
-    if (form.email === "evelynarango1220@gmail.com" &&
-      form.password === "1234") {
-      setView("cliente"); // Redirige a cliente.jsx
-    } else if (
-      form.email === "empleada@collservice.com" &&
-      form.password === "empleada123"
-    ) {
-      setView("empleado"); // Redirige a empleado.jsx
-    } else if (
-      form.email === "admin@collservice.com" &&
-      form.password === "admin123"
-    ) {
-      setView("admin"); // Redirige a admin.jsx
-    } else {
-      alert("❌ Correo o contraseña incorrectos");
+      // 🔑 Normalizar rol recibido del backend
+      const rolRaw = res.data.rol || "";
+      const rol = rolRaw.toString().trim().toLowerCase();
+
+      if (rol.includes("admin")) {
+        setView("admin");
+      } else if (rol.includes("emple")) {
+        setView("empleado");
+      } else if (rol.includes("client")) {
+        setView("cliente");
+      } else {
+        alert("❌ Rol desconocido: " + rolRaw);
+      }
+    } catch (err) {
+      alert("❌ " + (err.response?.data?.error || "Error al iniciar sesión"));
     }
   };
 
@@ -160,7 +165,6 @@ export default function Login({ setView, goBack }) {
             </button>
           </form>
 
-          {/* Enlaces extra */}
           <p className="extra">
             ¿Olvidaste tu contraseña?{" "}
             <a
@@ -191,3 +195,4 @@ export default function Login({ setView, goBack }) {
     </>
   );
 }
+  

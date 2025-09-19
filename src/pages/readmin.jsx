@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 function RegistroAdministrador({ goBack }) {
   const [form, setForm] = useState({
@@ -7,7 +8,7 @@ function RegistroAdministrador({ goBack }) {
     usuario: "",
     correo: "",
     telefono: "",
-    rol: "",
+    nivel_acceso: "",  // cambiado de rol → nivel_acceso
     contraseña: "",
     confirmarContraseña: "",
   });
@@ -19,7 +20,7 @@ function RegistroAdministrador({ goBack }) {
     setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!aceptarTerminos) {
@@ -32,7 +33,39 @@ function RegistroAdministrador({ goBack }) {
       return;
     }
 
-    alert("Administrador registrado:\n" + JSON.stringify(form, null, 2));
+    try {
+      const res = await axios.post("http://localhost:5000/api/administradores/registro", {
+        nombre: form.nombre,
+        apellido: form.apellido,
+        usuario: form.usuario,
+        correo: form.correo,
+        telefono: form.telefono,
+        direccion: "",
+        contrasena: form.contraseña,
+        nivel_acceso: form.nivel_acceso, // lo mandamos pero backend lo ignora
+      });
+
+      alert(res.data.mensaje);
+
+      setForm({
+        nombre: "",
+        apellido: "",
+        usuario: "",
+        correo: "",
+        telefono: "",
+        nivel_acceso: "",
+        contraseña: "",
+        confirmarContraseña: "",
+      });
+      setAceptarTerminos(false);
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data?.error) {
+        alert("❌ " + err.response.data.error);
+      } else {
+        alert("❌ Error al conectar con el servidor");
+      }
+    }
   };
 
   return (
@@ -47,107 +80,45 @@ function RegistroAdministrador({ goBack }) {
         <h2 style={styles.title}>Registro de Administrador</h2>
 
         <form onSubmit={handleSubmit}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Nombre</label>
-            <input
-              type="text"
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
+          {["nombre", "apellido", "usuario", "correo", "telefono", "contraseña", "confirmarContraseña"].map((field) => (
+            <div style={styles.inputGroup} key={field}>
+              <label style={styles.label}>
+                {field === "usuario"
+                  ? "Usuario"
+                  : field === "contraseña"
+                  ? "Contraseña"
+                  : field === "confirmarContraseña"
+                  ? "Confirmar Contraseña"
+                  : field.charAt(0).toUpperCase() + field.slice(1)}
+              </label>
+              <input
+                type={field.includes("contraseña") ? "password" : field === "correo" ? "email" : field === "telefono" ? "tel" : "text"}
+                name={field}
+                value={form[field]}
+                onChange={handleChange}
+                style={styles.input}
+                required
+              />
+            </div>
+          ))}
 
+          {/* Nivel de acceso (solo visual, backend fuerza admin) */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Apellido</label>
-            <input
-              type="text"
-              name="apellido"
-              value={form.apellido}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Usuario</label>
-            <input
-              type="text"
-              name="usuario"
-              value={form.usuario}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Correo</label>
-            <input
-              type="email"
-              name="correo"
-              value={form.correo}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Teléfono</label>
-            <input
-              type="tel"
-              name="telefono"
-              value={form.telefono}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Rol</label>
+            <label style={styles.label}>Nivel de Acceso</label>
             <select
-              name="rol"
-              value={form.rol}
+              name="nivel_acceso"
+              value={form.nivel_acceso}
               onChange={handleChange}
               style={styles.input}
               required
             >
-              <option value="">Seleccione un rol</option>
+              <option value="">Seleccione nivel de acceso</option>
               <option value="superadmin">Super Administrador</option>
               <option value="rrhh">Recursos Humanos</option>
               <option value="soporte">Soporte Técnico</option>
             </select>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Contraseña</label>
-            <input
-              type="password"
-              name="contraseña"
-              value={form.contraseña}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Confirmar Contraseña</label>
-            <input
-              type="password"
-              name="confirmarContraseña"
-              value={form.confirmarContraseña}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
-          </div>
-
-          {/* ✅ Checkbox de aceptación de términos */}
           <div style={{ ...styles.inputGroup, flexDirection: "row", alignItems: "center", marginBottom: "10px" }}>
             <input
               type="checkbox"
@@ -165,18 +136,19 @@ function RegistroAdministrador({ goBack }) {
             </label>
           </div>
 
-          <button type="submit" style={styles.button}>Registrar Administrador</button>
+          <button type="submit" style={styles.button}>
+            Registrar Administrador
+          </button>
         </form>
       </div>
     </div>
   );
 }
 
-// 🎨 Estilos en JS (inline styles)
 const styles = {
   body: {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    background: "linear-gradient(180deg, #ffffffff, #ffffffff)",
+    background: "linear-gradient(180deg, #fefefe, #fefefe)",
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-start",
@@ -188,7 +160,8 @@ const styles = {
     background: "#f4e6ff",
     borderRadius: "12px",
     boxShadow: "0 0 20px rgba(59, 5, 127, 0.6)",
-    width: "380px",
+    width: "100%",
+    maxWidth: "400px",
     padding: "30px 25px",
     fontSize: "13px",
   },

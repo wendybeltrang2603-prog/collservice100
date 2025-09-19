@@ -40,7 +40,7 @@ app.get('/api/ping', async (req, res) => {
 // ==========================
 app.post('/api/administradores/registro', async (req, res) => {
   try {
-    const { nombre, apellido, usuario, correo, telefono, rol, direccion, contrasena } = req.body;
+    const { nombre, apellido, usuario, correo, telefono, direccion, contrasena } = req.body;
 
     if (!usuario || !nombre || !correo || !contrasena) {
       return res.status(400).json({ error: 'Faltan campos obligatorios (usuario, nombre, correo, contrasena).' });
@@ -67,7 +67,7 @@ app.post('/api/administradores/registro', async (req, res) => {
       apellido || null,
       telefono || null,
       direccion || null,
-      rol || 'basico',
+      "admin", // 🔹 siempre se guarda como admin
       correo,
       hashed
     ]);
@@ -201,6 +201,98 @@ app.post('/api/empleadas/registro', async (req, res) => {
       return res.status(409).json({ error: 'Documento o correo ya registrado' });
     }
     return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// ==========================
+// Login (para cualquier rol)
+// ==========================
+app.post('/api/login', async (req, res) => {
+  try {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+      return res.status(400).json({ error: "Correo y contraseña son obligatorios" });
+    }
+
+    // 1. Buscar en Administradores
+    let [rows] = await pool.query("SELECT correo_admin AS correo, contraseña_admin AS password, nivel_acceso AS rol FROM administrador WHERE correo_admin = ?", [correo]);
+    
+    if (rows.length === 0) {
+      // 2. Buscar en Empleados
+      [rows] = await pool.query("SELECT correo_empleado AS correo, contrasena_empleado AS password, 'empleado' AS rol FROM empleado WHERE correo_empleado = ?", [correo]);
+    }
+
+    if (rows.length === 0) {
+      // 3. Buscar en Clientes
+      [rows] = await pool.query("SELECT correo_cliente AS correo, contrasena AS password, 'cliente' AS rol FROM cliente WHERE correo_cliente = ?", [correo]);
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Usuario no encontrado" });
+    }
+
+    const usuario = rows[0];
+
+    // Comparar contraseñas con bcrypt
+    const match = await bcrypt.compare(contrasena, usuario.password);
+    if (!match) {
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
+
+    // Respuesta OK
+    res.json({ mensaje: "✅ Login exitoso", rol: usuario.rol });
+  } catch (err) {
+    console.error("Error en login:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+// ==========================
+// Login
+// ==========================
+app.post("/api/login", async (req, res) => {
+  try {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+      return res.status(400).json({ error: "Faltan credenciales" });
+    }
+
+    // Buscar en administradores
+    const [admin] = await pool.query(
+      "SELECT * FROM administrador WHERE correo_admin = ?",
+      [correo]
+    );
+    if (admin.length > 0) {
+      const match = await bcrypt.compare(contrasena, admin[0].contraseña_admin);
+      if (match) return res.json({ rol: "admin" });
+    }
+
+    // Buscar en empleados
+    const [empleado] = await pool.query(
+      "SELECT * FROM empleado WHERE correo_empleado = ?",
+      [correo]
+    );
+    if (empleado.length > 0) {
+      const match = await bcrypt.compare(contrasena, empleado[0].contrasena_empleado);
+      if (match) return res.json({ rol: "empleado" });
+    }
+
+    // Buscar en clientes
+    const [cliente] = await pool.query(
+      "SELECT * FROM cliente WHERE correo_cliente = ?",
+      [correo]
+    );
+    if (cliente.length > 0) {
+      const match = await bcrypt.compare(contrasena, cliente[0].contrasena);
+      if (match) return res.json({ rol: "cliente" });
+    }
+
+    // Si no coincide con nada
+    return res.status(401).json({ error: "Credenciales inválidas" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Error en el servidor" });
   }
 });
 
