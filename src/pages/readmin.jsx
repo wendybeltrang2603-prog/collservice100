@@ -1,70 +1,41 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-function RegistroAdministrador({ goBack }) {
+export default function RegistroAdministrador({ goBack }) {
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nombre: "",
-    apellido: "",
-    usuario: "",
     correo: "",
     telefono: "",
-    nivel_acceso: "",  // cambiado de rol → nivel_acceso
-    contraseña: "",
-    confirmarContraseña: "",
+    usuario_admin: "",
+    contrasena: ""
   });
-
-  const [aceptarTerminos, setAceptarTerminos] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
-    if (!aceptarTerminos) {
-      alert("Debes aceptar los términos y condiciones ✅");
-      return;
-    }
-
-    if (form.contraseña !== form.confirmarContraseña) {
-      alert("⚠️ Las contraseñas no coinciden");
-      return;
-    }
-
+    // Validación mínima en cliente (HTML required ya cubre lo esencial)
     try {
-      const res = await axios.post("http://localhost:5000/api/administradores/registro", {
-        nombre: form.nombre,
-        apellido: form.apellido,
-        usuario: form.usuario,
-        correo: form.correo,
-        telefono: form.telefono,
-        direccion: "",
-        contrasena: form.contraseña,
-        nivel_acceso: form.nivel_acceso, // lo mandamos pero backend lo ignora
+      setLoading(true);
+      const res = await axios.post("http://localhost:5000/api/administradores/registro", form, {
+        headers: { "Content-Type": "application/json" },
+        timeout: 15000
       });
-
-      alert(res.data.mensaje);
-
-      setForm({
-        nombre: "",
-        apellido: "",
-        usuario: "",
-        correo: "",
-        telefono: "",
-        nivel_acceso: "",
-        contraseña: "",
-        confirmarContraseña: "",
-      });
-      setAceptarTerminos(false);
+      alert(res.data?.mensaje || "Administrador registrado");
+      setForm({ nombre: "", correo: "", telefono: "", usuario_admin: "", contrasena: "" });
+      if (typeof goBack === "function") goBack();
     } catch (err) {
       console.error(err);
-      if (err.response?.data?.error) {
-        alert("❌ " + err.response.data.error);
-      } else {
-        alert("❌ Error al conectar con el servidor");
-      }
+      const msg = err?.response?.data?.error || "Error al registrar administrador";
+      alert(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,73 +43,45 @@ function RegistroAdministrador({ goBack }) {
     <div style={styles.body}>
       <div style={{ ...styles.container, position: "relative" }}>
         {goBack && (
-          <button onClick={goBack} style={styles.backButton} title="Atrás">
-            ←
-          </button>
+          <button onClick={goBack} style={styles.backButton} title="Atrás">←</button>
         )}
 
-        <h2 style={styles.title}>Registro de Administrador</h2>
+        <h2 style={styles.title}>Registro Administrador</h2>
 
         <form onSubmit={handleSubmit}>
-          {["nombre", "apellido", "usuario", "correo", "telefono", "contraseña", "confirmarContraseña"].map((field) => (
-            <div style={styles.inputGroup} key={field}>
-              <label style={styles.label}>
-                {field === "usuario"
-                  ? "Usuario"
-                  : field === "contraseña"
-                  ? "Contraseña"
-                  : field === "confirmarContraseña"
-                  ? "Confirmar Contraseña"
-                  : field.charAt(0).toUpperCase() + field.slice(1)}
-              </label>
-              <input
-                type={field.includes("contraseña") ? "password" : field === "correo" ? "email" : field === "telefono" ? "tel" : "text"}
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                style={styles.input}
-                required
-              />
-            </div>
-          ))}
-
-          {/* Nivel de acceso (solo visual, backend fuerza admin) */}
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Nivel de Acceso</label>
-            <select
-              name="nivel_acceso"
-              value={form.nivel_acceso}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            >
-              <option value="">Seleccione nivel de acceso</option>
-              <option value="superadmin">Super Administrador</option>
-              <option value="rrhh">Recursos Humanos</option>
-              <option value="soporte">Soporte Técnico</option>
-            </select>
+            <label style={styles.label}>Nombre completo</label>
+            <input name="nombre" value={form.nombre} onChange={handleChange} style={styles.input} required />
           </div>
 
-          <div style={{ ...styles.inputGroup, flexDirection: "row", alignItems: "center", marginBottom: "10px" }}>
-            <input
-              type="checkbox"
-              id="aceptarTerminos"
-              checked={aceptarTerminos}
-              onChange={(e) => setAceptarTerminos(e.target.checked)}
-              style={{ marginRight: "8px" }}
-              required
-            />
-            <label htmlFor="aceptarTerminos">
-              Acepto los{" "}
-              <a href="/terminos" target="_blank" style={{ color: "#4b2879", textDecoration: "underline" }}>
-                Términos y Condiciones
-              </a>
-            </label>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Correo</label>
+            <input name="correo" type="email" value={form.correo} onChange={handleChange} style={styles.input} required />
           </div>
 
-          <button type="submit" style={styles.button}>
-            Registrar Administrador
-          </button>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Teléfono (opcional)</label>
+            <input name="telefono" value={form.telefono} onChange={handleChange} style={styles.input} />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Usuario (ID)</label>
+            <input name="usuario_admin" value={form.usuario_admin} onChange={handleChange} style={styles.input} required />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Contraseña</label>
+            <input name="contrasena" type="password" value={form.contrasena} onChange={handleChange} style={styles.input} required />
+          </div>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? "Registrando..." : "Registrar administrador"}
+            </button>
+            <button type="button" onClick={() => (typeof goBack === "function" ? goBack() : null)} style={styles.cancelButton}>
+              Volver
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -146,70 +89,13 @@ function RegistroAdministrador({ goBack }) {
 }
 
 const styles = {
-  body: {
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    background: "linear-gradient(180deg, #fefefe, #fefefe)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    minHeight: "100vh",
-    padding: "30px",
-    color: "#222",
-  },
-  container: {
-    background: "#f4e6ff",
-    borderRadius: "12px",
-    boxShadow: "0 0 20px rgba(59, 5, 127, 0.6)",
-    width: "100%",
-    maxWidth: "400px",
-    padding: "30px 25px",
-    fontSize: "13px",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "20px",
-    fontWeight: 600,
-    color: "#4b2879",
-  },
-  inputGroup: {
-    marginBottom: "14px",
-    display: "flex",
-    flexDirection: "column",
-  },
-  label: {
-    fontWeight: 600,
-    marginBottom: "4px",
-    color: "#4b2879",
-  },
-  input: {
-    padding: "7px 10px",
-    borderRadius: "5px",
-    border: "1px solid #7b68ee",
-    fontSize: "13px",
-  },
-  button: {
-    padding: "10px 15px",
-    background: "#6d4ad9",
-    border: "none",
-    borderRadius: "6px",
-    color: "white",
-    fontWeight: 700,
-    cursor: "pointer",
-    fontSize: "14px",
-    marginTop: "8px",
-    transition: "background 0.3s ease",
-  },
-  backButton: {
-    position: "absolute",
-    left: 20,
-    top: 20,
-    background: "none",
-    border: "none",
-    color: "#a18cd1",
-    fontSize: 22,
-    cursor: "pointer",
-    zIndex: 10,
-  },
+  body: { fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", display: "flex", justifyContent: "center", alignItems: "flex-start", minHeight: "100vh", padding: "30px" },
+  container: { background: "#fff7fb", borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.06)", width: 520, padding: 24 },
+  title: { textAlign: "center", marginBottom: 12, color: "#8a3fa6" },
+  inputGroup: { marginBottom: 12, display: "flex", flexDirection: "column" },
+  label: { fontWeight: 600, marginBottom: 6, color: "#5c2b8a" },
+  input: { padding: 10, borderRadius: 8, border: "1px solid #d7c6f4" },
+  button: { padding: "10px 16px", background: "#a65bd6", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", flex: 1 },
+  cancelButton: { padding: "10px 16px", background: "#fff", color: "#444", border: "1px solid #ddd", borderRadius: 10, cursor: "pointer" },
+  backButton: { position: "absolute", left: 16, top: 16, background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#a18cd1" }
 };
-
-export default RegistroAdministrador;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Importa todas las páginas/vistas que usarás
 import Login from "./pages/login.jsx";
@@ -6,15 +7,19 @@ import Terminos from "./pages/terminos.jsx";
 import Privacidad from "./pages/privacidad.jsx";
 import DatosPersonales from "./pages/datos.jsx";
 import RegistroEmpleado from "./pages/registro.jsx";
-import RegistroCliente from "./pages/cliente.jsx";
+import RegistroCliente from "./pages/recliente.jsx";
 import Cliente from "./pages/cliente.jsx";
 import Admin from "./pages/admin.jsx";
 import Empleado from "./pages/empleado.jsx";
 import Nosotros from "./pages/nosotros.jsx";
 import ContactoEmpresaInfo from "./pages/contacto.jsx";
 import RecuperarContrasena from "./pages/recuperarContrasena.jsx";
+import Perfiles from "./pages/perfiles.jsx";
+import ChatPage from "./pages/chat.jsx";
+import AdminChatSupervision from "./pages/chatAdmin.jsx";
+import Header from "./components/Header";
 
-// 👉 Nuevo componente Servicios
+// 👉 Nuevo componente Servicios (sin cambios funcionales)
 function Servicios({ goBack }) {
   return (
     <section style={{ textAlign: "center", padding: "20px" }}>
@@ -41,7 +46,7 @@ function Servicios({ goBack }) {
         <li style={servicioStyle}>👶 Niñera</li>
         <li style={servicioStyle}>🐶 Cuidado canino</li>
         <li style={servicioStyle}>🌳 Mantenimiento de jardines y áreas verdes</li>
-        <li style={servicioStyle}>🗄️ Organización de armarios o bodegas</li>
+        <li style={servicioStyle}>🗄 Organización de armarios o bodegas</li>
         <li style={servicioStyle}>🛒 Compras y mandados</li>
         <li style={servicioStyle}>♿ Cuidado a personas con discapacidad</li>
         <li style={servicioStyle}>🎉 Limpieza después de eventos o fiestas</li>
@@ -80,7 +85,21 @@ function App() {
   const [view, setView] = useState("inicio");
   const [history, setHistory] = useState([]);
   const [rol, setRol] = useState("");
+  const [user, setUser] = useState({ name: "", role: "", token: "" }); // guarda el usuario real
   const [isMobile, setIsMobile] = useState(false);
+  const [carruselIdx, setCarruselIdx] = useState(0);
+
+  // Mantener rol legible en 'rol' (compatibilidad con tu código existente)
+  useEffect(() => {
+    if (user && user.role) {
+      if (user.role === "admin") setRol("Administrador");
+      else if (user.role === "empleado") setRol("Empleada");
+      else if (user.role === "cliente") setRol("Cliente");
+      else setRol("");
+    } else {
+      setRol("");
+    }
+  }, [user]);
 
   const goToView = (v) => {
     setHistory((h) => [...h, view]);
@@ -108,7 +127,7 @@ function App() {
     { src: "/can.png", alt: "Empleada con productos de limpieza", texto: "Personal capacitado y amable" },
     { src: "/nin.png", alt: "Empleada cuidando niños", texto: "Cuidado y confianza para tu familia" },
   ];
-  const [carruselIdx, setCarruselIdx] = useState(0);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCarruselIdx((i) => (i + 1) % carruselImgs.length);
@@ -116,82 +135,13 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
-  const headerStyle = {
-    background: "linear-gradient(90deg, #fbc2eb, #4c3575)",
-    color: "white",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "14px 30px",
-    flexWrap: "wrap",
-    ...(isMobile ? { flexDirection: "column", alignItems: "flex-start", padding: "14px 20px" } : {}),
-  };
-  const logoStyle = { fontSize: "22px", fontWeight: "bold", marginBottom: isMobile ? "10px" : "0" };
-
-  const menuStyle = {
-    listStyle: "none",
-    display: "flex",
-    gap: "25px",
-    margin: 0,
-    padding: 0,
-    flexWrap: "wrap",
-  };
-  const menuLinkStyle = {
-    textDecoration: "none",
-    color: "white",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "color 0.3s",
-  };
-
-  const accionesStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    flexWrap: "wrap",
-    marginTop: isMobile ? "12px" : "0px",
-  };
-  const btnStyle = {
-    background: "white",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "13px",
-    fontWeight: "600",
-    color: "#333",
-    transition: "background 0.3s",
-  };
-  const buscarBtnStyle = {
-    background: "#ff69b4",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    cursor: "pointer",
-    color: "white",
-    fontWeight: "bold",
-  };
-  const inputStyle = {
-    padding: "6px 12px",
-    borderRadius: "20px",
-    border: "1px solid #ddd",
-    fontSize: "14px",
-    minWidth: isMobile ? "100%" : "150px",
-    marginBottom: isMobile ? "8px" : "0px",
-  };
-
-  const footerStyle = {
-    background: "linear-gradient(90deg, #fbc2eb, #4c3575)",
-    color: "white",
-    padding: "30px 20px",
-    textAlign: "center",
-    marginTop: "60px",
-  };
-  const linkFooterStyle = {
-    color: "white",
-    textDecoration: "underline",
-    cursor: "pointer",
-    margin: "0 8px",
+  // Header handlers para pasar al componente Header
+  const handleLoginClick = () => goToView("login");
+  const handleRegisterClick = () => goToView("registro");
+  const handleLogout = () => {
+    setUser({ name: "", role: "", token: "" });
+    setRol("");
+    goToView("inicio");
   };
 
   const renderView = () => {
@@ -199,14 +149,8 @@ function App() {
       case "login":
         return (
           <Login
-            setView={(v) => {
-              goToView(v);   // ✅ aquí es donde cambia la vista
-              if (v === "admin") setRol("Administrador");
-              else if (v === "empleado") setRol("Empleada");
-              else if (v === "cliente") setRol("Cliente");
-              else setRol("");
-            }}
-            goBack={goBack}
+            setView={(v) => goToView(v)}
+            setUser={setUser} // pasamos setUser para guardar nombre/rol/token desde Login
           />
         );
       case "recuperar":
@@ -222,7 +166,7 @@ function App() {
       case "admin":
         return <Admin goBack={goBack} />;
       case "servicios":
-        return <Servicios goBack={goBack} />; {/* ✅ Ahora integrado */}
+        return <Servicios goBack={goBack} />;
       case "nosotros":
         return <Nosotros goBack={goBack} />;
       case "contacto":
@@ -234,143 +178,190 @@ function App() {
       case "datos":
         return <DatosPersonales goBack={goBack} />;
       default:
-        return (
-          <>
-            {/* Pantalla Inicio */}
-            <section style={{ textAlign: "center", margin: "50px auto 30px", padding: isMobile ? "0 15px" : "0" }}>
-              <h1 style={{ fontSize: "30px", color: "#e76bb2", marginBottom: "15px" }}>
-                Bienvenido a Coll Service
-              </h1>
-              <p
-                style={{
-                  fontSize: "16px",
-                  background: "#f1f2f7",
-                  display: "inline-block",
-                  padding: "10px 18px",
-                  borderRadius: "10px",
-                  color: "#444",
-                  maxWidth: isMobile ? "90%" : "600px",
-                }}
-              >
-                Tu tranquilidad y limpieza en manos expertas. ¡Confía en nosotros para tu hogar u oficina!
-              </p>
-            </section>
-
-            {/* Carrusel */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 40 }}>
-              <div
-                style={{
-                  position: "relative",
-                  width: 320,
-                  height: 200,
-                  borderRadius: 18,
-                  overflow: "hidden",
-                  boxShadow: "0 4px 16px rgba(76,53,117,0.13)",
-                  background: "#fff",
-                }}
-              >
-                <img
-                  src={carruselImgs[carruselIdx].src}
-                  alt={carruselImgs[carruselIdx].alt}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.7s" }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: "rgba(76,53,117,0.7)",
-                    color: "white",
-                    padding: "10px 0",
-                    textAlign: "center",
-                    fontWeight: 500,
-                    fontSize: 17,
-                  }}
-                >
-                  {carruselImgs[carruselIdx].texto}
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                {carruselImgs.map((_, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      background: i === carruselIdx ? "#e76bb2" : "#ddd",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        );
+        return null;
     }
   };
 
+  // Estilos para centrar contenido general de las páginas (Inicio ya tiene su propio layout)
+  const contentContainer = {
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "40px 20px",
+    boxSizing: "border-box",
+    textAlign: "center",
+  };
+
   return (
-    <div style={{ fontFamily: '"Segoe UI", Arial, sans-serif', backgroundColor: "#f6f5fc", color: "#333", lineHeight: "1.5" }}>
-      <header style={headerStyle}>
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            goToView("inicio");
-            setRol("");
-          }}
-          style={{ textDecoration: "none", display: "flex", alignItems: "center", marginBottom: isMobile ? "12px" : "0" }}
-        >
-          <img src="/logo.png.png" alt="Coll Service Logo" style={{ height: "80px", marginRight: 10, cursor: "pointer" }} />
-          <span style={{ ...logoStyle, color: "#fff", letterSpacing: "1.5px" }}>COLL SERVICE</span>
-        </a>
-        <ul style={menuStyle}>
-          <li><a style={menuLinkStyle} onClick={() => goToView("inicio")}>Inicio</a></li>
-          
-        </ul>
-        <div style={accionesStyle}>
-          {rol ? (
+    <Router>
+      <div style={{ fontFamily: '"Segoe UI", Arial, sans-serif', backgroundColor: "#f6f5fc", color: "#333", lineHeight: "1.5" }}>
+        {/* Header componente que ahora usa user real y permite navegar al 'inicio', 'servicios', 'contacto', 'nosotros' */}
+        <Header
+          user={user}
+          onLoginClick={handleLoginClick}
+          onRegisterClick={handleRegisterClick}
+          onLogout={handleLogout}
+          onNavigate={(v) => goToView(v)}
+        />
+
+        <main>
+          {view === "inicio" ? (
             <>
-              <span style={{ color: "#fff", fontWeight: 600, background: "#e76bb2", borderRadius: 8, padding: "6px 16px", fontSize: 15, marginRight: 12 }}>
-                Bienvenido {rol}
-              </span>
-              <button
-                style={{ ...btnStyle, background: "#e76bb2", color: "white" }}
-                onClick={() => {
-                  goToView("inicio");
-                  setRol("");
+              {/* Inicio centrado: en pantallas grandes muestra texto y carrusel lado a lado centrados,
+                  en pantallas pequeñas apila verticalmente y centra todo */}
+              <section
+                style={{
+                  position: "relative",
+                  padding: "60px 20px",
+                  background: "linear-gradient(135deg, rgba(251,194,235,0.95), rgba(76,53,117,0.95))",
+                  color: "white",
+                  textAlign: "center",
+                  minHeight: "calc(100vh - 160px)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "40px",
+                  flexDirection: isMobile ? "column" : "row",
                 }}
               >
-                Cerrar sesión
-              </button>
+                <div style={{ flex: "1", maxWidth: isMobile ? "100%" : 520, textAlign: "center" }}>
+                  <h1 style={{ fontSize: isMobile ? "32px" : "42px", marginBottom: "18px", fontWeight: "bold" }}>
+                    Servicio de limpieza de casas y apartamentos que se adapta a ti
+                  </h1>
+                  <p style={{ fontSize: isMobile ? "16px" : "18px", lineHeight: "1.6", marginBottom: "26px" }}>
+                    En Coll Service entendemos que tu hogar no es cualquier lugar: es tu refugio, tu energía, tu espacio sagrado.
+                    Nuestro servicio de limpieza va más allá de lo básico: es una experiencia diseñada para darte tranquilidad,
+                    confianza y resultados impecables.
+                  </p>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <button
+                      style={{
+                        background: "#e76bb2",
+                        color: "white",
+                        padding: "14px 28px",
+                        borderRadius: "25px",
+                        border: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        boxShadow: "0 6px 20px rgba(231,107,178,0.25)",
+                      }}
+                      onClick={() => goToView("registro")}
+                    >
+                      AGENDA TU LIMPIEZA AHORA
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ flex: "1", maxWidth: isMobile ? "100%" : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div
+                    style={{
+                      width: "100%",
+                      height: isMobile ? 260 : 400,
+                      borderRadius: "20px",
+                      overflow: "hidden",
+                      boxShadow: "0 12px 30px rgba(0,0,0,0.18)",
+                      background: "#fff",
+                      position: "relative",
+                    }}
+                  >
+                    <img
+                      src={carruselImgs[carruselIdx].src}
+                      alt={carruselImgs[carruselIdx].alt}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "opacity 0.7s",
+                        display: "block",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "rgba(76,53,117,0.85)",
+                        color: "white",
+                        padding: "12px",
+                        textAlign: "center",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {carruselImgs[carruselIdx].texto}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                    {carruselImgs.map((_, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          background: i === carruselIdx ? "#e76bb2" : "rgba(255,255,255,0.6)",
+                          cursor: "pointer",
+                          transition: "background 0.25s",
+                          border: "2px solid rgba(0,0,0,0.12)",
+                        }}
+                        onClick={() => setCarruselIdx(i)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
             </>
           ) : (
-            <button style={btnStyle} onClick={() => { goToView("login"); setRol(""); }}>Iniciar sesión</button>
+            // Para todas las demás vistas, centramos el contenido en un contenedor con max-width
+            <div style={contentContainer}>{renderView()}</div>
           )}
-          <button style={btnStyle} onClick={() => { goToView("registro"); setRol(""); }}>Registro </button>
-         
-         
-        </div>
-      </header>
+        </main>
 
-      <main>{renderView()}</main>
+        <footer
+          style={{
+            background: "linear-gradient(90deg, #fbc2eb, #4c3575)",
+            color: "white",
+            padding: "30px 20px",
+            textAlign: "center",
+            marginTop: "0",
+          }}
+        >
+          <div style={{ marginBottom: "20px" }}>
+            <a
+              style={{ color: "white", textDecoration: "underline", cursor: "pointer", margin: "0 8px" }}
+              onClick={() => goToView("terminos")}
+            >
+              Términos y Condiciones
+            </a>
+            |
+            <a
+              style={{ color: "white", textDecoration: "underline", cursor: "pointer", margin: "0 8px" }}
+              onClick={() => goToView("privacidad")}
+            >
+              Política de Privacidad
+            </a>
+            |
+            <a
+              style={{ color: "white", textDecoration: "underline", cursor: "pointer", margin: "0 8px" }}
+              onClick={() => goToView("datos")}
+            >
+              Datos Personales
+            </a>
+          </div>
+          <div style={{ fontWeight: "500", fontSize: "16px" }}>© {new Date().getFullYear()} Coll Service. Todos los derechos reservados.</div>
+        </footer>
+      </div>
 
-      <footer style={footerStyle}>
-        <div style={{ marginBottom: "20px" }}>
-          
-          <a style={linkFooterStyle} onClick={() => goToView("terminos")}>Términos y Condiciones</a> |
-          <a style={linkFooterStyle} onClick={() => goToView("privacidad")}>Política de Privacidad</a> |
-          <a style={linkFooterStyle} onClick={() => goToView("contacto")}>Contacto</a> |
-          <a style={linkFooterStyle} onClick={() => goToView("nosotros")}>Nosotros</a> |
-          <a style={linkFooterStyle} onClick={() => goToView("servicios")}>Servicios</a>
-
-        </div>
-        <div style={{ fontWeight: "500", fontSize: "16px" }}>
-          © {new Date().getFullYear()} Coll Service. Todos los derechos reservados.
-        </div>
-      </footer>
-    </div>
+      <Routes>
+        <Route path="/" element={<Perfiles />} />
+        <Route path="/perfiles" element={<Perfiles />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/admin/chats" element={<AdminChatSupervision />} />
+        {/* ruta por defecto */}
+        <Route path="*" element={<Perfiles />} />
+      </Routes>
+    </Router>
   );
 }
 
